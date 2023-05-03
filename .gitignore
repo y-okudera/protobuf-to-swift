@@ -1,0 +1,12 @@
+/swift-protobuf
+.DS_Store
+
+pb_extractor/*
+!pb_extractor.py
+
+output/*
+!.gitkeep
+
+/proto
+!/proto/google
+!.gitkeep
