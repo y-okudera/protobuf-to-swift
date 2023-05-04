@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 pystache = "==0.6.0"
-pyhumps = "*"
+pyhumps = "==3.8.0"
 
 [dev-packages]
 
