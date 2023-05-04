@@ -15,18 +15,28 @@ project: ## プロジェクトの設定をします
 
 .PHONY: gen
 gen: ## Swiftファイルを生成します
-	# ./output/api ./output/requestディレクトリ削除、生成
-	rm -rf ./output/api ./output/request
-	mkdir -p ./output/api ./output/request
+	# 前回生成したファイル、ディレクトリを削除
+	make clear
 
-	# *_pb2.py削除、生成
-	find ./pb_extractor -type f -name "*_pb2.py" | xargs rm -rf
-	find ./pb_extractor -type d -empty -delete
+	# *_pb2.py生成
 	cd proto; protoc --proto_path=. --python_out=../pb_extractor *.proto model/* service/* view/* google/api/*
 
-	# proto_reader.py削除、生成
-	rm -rf ./pb_extractor/proto_reader.py
+	# proto_reader.py生成
 	pipenv run python proto_reader_generator/proto_reader_generator.py
 
+	# ./output/api ./output/requestディレクトリ生成
+	mkdir -p ./output/api ./output/request
 	# Swiftファイル生成
 	pipenv run python pb_extractor/pb_extractor.py
+
+.PHONY: clear
+clear: ## make genで生成されるファイル、ディレクトリを削除します
+	# *_pb2.py削除
+	find ./pb_extractor -type f -name "*_pb2.py" | xargs rm -rf
+	find ./pb_extractor -type d -empty -delete
+
+	# proto_reader.py削除
+	rm -rf ./pb_extractor/proto_reader.py
+
+	# ./output/api ./output/requestディレクトリ削除
+	rm -rf ./output/api ./output/request
