@@ -3,7 +3,6 @@ from google.protobuf import descriptor_pb2
 import humps
 import pystache
 
-
 def __generate_swift_from_template(template_path, output_path, context):
     """
     Swiftファイルを生成する
@@ -40,20 +39,18 @@ def __extract_services(services):
         method = service.method
         # RPCの取得
         for rpc in method:
+            for option in descriptor_pb2.MethodOptions.ListFields(rpc.options):
+                option_key_str = option[0]
+                if (option_key_str.full_name == "google.api.http"):
+                    option_value_str = "{}".format(option[1])
+                    split_stg = option_value_str.strip().split(': ')
+                    http_method = split_stg[0]
+                    path = split_stg[1].replace('"', '')
 
-            output_type = rpc.output_type.replace('.', '_')[1:].title()
-
-            http_method = ""
-            path = ""
-            lines = "{}".format(rpc).splitlines()
-            for i, m in enumerate(lines):
-                if ('[google.api.http]' in m):
-                    ls = lines[i+1].strip().replace('"', '').split(': ')
-                    http_method = ls[0]
-                    path = ls[1]
-            print('RPC名: %s' % rpc.name)
+            print('---rpc---')
+            print('rpc名: %s' % rpc.name)
             print('input_type: %s' % rpc.input_type)
-            print('output_type: %s' % output_type)
+            print('output_type: %s' % rpc.output_type)
             print('http_method: %s' % http_method)
             print('path: %s' % path)
             print('')
@@ -69,6 +66,9 @@ def __extract_services(services):
             }
             __generate_swift_from_template(template_path, output_path, context)
             contexts.append(context)
+
+    print("service_contexts: {}".format(contexts))
+    print('')
     return contexts
 
 def __extract_message_types(message_types, service_contexts):
@@ -82,92 +82,91 @@ def __extract_message_types(message_types, service_contexts):
 
     # メッセージごとに処理
     for message_type in message_types:
-        print("Message %s" % message_type.name)
-        print("Fields")
+        print("---message_type---")
+        print("message名: %s" % message_type.name)
         fields = {}
         for f in message_type.field:
-            print(" %s" % f.name)
+            print(" ---field---")
+            print(" field名: %s" % f.name)
 
-            lbl = f.label
-            o = ""
-            if (lbl == 1):
+            if (f.label == 1):
                 print("  LABEL_OPTIONAL")
-                o = "?"
-            if (lbl == 2):
+                label = "?"
+            if (f.label == 2):
                 print("  LABEL_REQUIRED")
-                o = ""
-            if (lbl == 3):
+                label = ""
+            if (f.label == 3):
                 print("  LABEL_REPEATED")
                 # TODO:
 
-            type = f.type
-            t = ""
-            if (type == 1):
+            if (f.type == 1):
                 print("  TYPE_DOUBLE")
-                t = "Double"
-            if (type == 2):
+                type = "Double"
+            if (f.type == 2):
                 print("  TYPE_FLOAT")
-                t = "Float"
-            if (type == 3):
+                type = "Float"
+            if (f.type == 3):
                 print("  TYPE_INT64")
-                t = "Int64"
-            if (type == 4):
+                type = "Int64"
+            if (f.type == 4):
                 print("  TYPE_UINT64")
-                t = "UInt64"
-            if (type == 5):
+                type = "UInt64"
+            if (f.type == 5):
                 print("  TYPE_INT32")
-                t = "Int32"
-            if (type == 6):
+                type = "Int32"
+            if (f.type == 6):
                 print("  TYPE_FIXED64")
-                t = "UInt64"
-            if (type == 7):
+                type = "UInt64"
+            if (f.type == 7):
                 print("  TYPE_FIXED32")
-                t = "UInt32"
-            if (type == 8):
+                type = "UInt32"
+            if (f.type == 8):
                 print("  TYPE_BOOL")
-                t = "Bool"
-            if (type == 9):
+                type = "Bool"
+            if (f.type == 9):
                 print("  TYPE_STRING")
-                t = "String"
-            if (type == 10):
+                type = "String"
+            if (f.type == 10):
                 print("  TYPE_GROUP")
                 # TODO:
-            if (type == 11):
+            if (f.type == 11):
                 print("  TYPE_MESSAGE")
                 # TODO:
-            if (type == 12):
+            if (f.type == 12):
                 print("  TYPE_BYTES")
-                t = "Data"
-            if (type == 13):
+                type = "Data"
+            if (f.type == 13):
                 print("  TYPE_UINT32")
-                t = "UInt32"
-            if (type == 14):
+                type = "UInt32"
+            if (f.type == 14):
                 print("  TYPE_ENUM")
                 # TODO:
-            if (type == 15):
+            if (f.type == 15):
                 print("  TYPE_SFIXED32")
-                t = "Int32"
-            if (type == 16):
+                type = "Int32"
+            if (f.type == 16):
                 print("  TYPE_SFIXED64")
-                t = "Int64"
-            if (type == 17):
+                type = "Int64"
+            if (f.type == 17):
                 print("  TYPE_SINT32")
-                t = "Int32"
-            if (type == 18):
+                type = "Int32"
+            if (f.type == 18):
                 print("  TYPE_SINT64")
-                t = "Int64"
-            fields[f.name] = t + o
+                type = "Int64"
+            fields[f.name] = type + label
+            print('')
 
-        print('')
-        print(fields)
+        print('message_fields: {}'.format(fields))
 
         service_context = list(filter(lambda item : item['input_type'] == message_type.name, service_contexts))[0]
-        print(service_context)
-        template_path = "templates/mustache/request.swift.mustache"
-        output_path = "output/request/%s.swift" % message_type.name
+        print("対象のservice_context: {}".format(service_context))
+
         properties = []
         for k, v in humps.camelize(fields).items():
             properties.append({"name": k, "type": v})
+
+        template_path = "templates/mustache/request.swift.mustache"
+        output_path = "output/request/%s.swift" % message_type.name
         context = {
             "message": message_type.name,
             "output_type": service_context["output_type"],
@@ -175,7 +174,7 @@ def __extract_message_types(message_types, service_contexts):
             "path": service_context["path"],
             "properties": properties
         }
-        print(context)
+        print("message_context: {}".format(context))
         __generate_swift_from_template(template_path, output_path, context)
 
 def main():
@@ -186,7 +185,6 @@ def main():
 
     # サービスの内容を抽出する
     service_contexts = __extract_services(proto.service)
-    print("service_contexts: {}".format(service_contexts))
 
     # メッセージの内容を抽出する
     message_types = proto.message_type
