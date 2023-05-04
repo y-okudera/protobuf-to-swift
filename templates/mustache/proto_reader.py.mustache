@@ -1,0 +1,16 @@
+{{#pb2_files}}
+import {{name}}
+{{/pb2_files}}
+from google.protobuf import descriptor_pb2
+
+class ProtoReader:
+    def readAll():
+        list = []
+        {{#pb2_files}}
+        list.append(
+            descriptor_pb2.FileDescriptorProto.FromString(
+                {{name}}.DESCRIPTOR.serialized_pb
+            )
+        )
+        {{/pb2_files}}
+        return list
