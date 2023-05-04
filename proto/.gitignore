@@ -1,0 +1,7 @@
+/*.proto
+
+/model/*
+/service/*
+/view/*
+
+!**/.gitkeep

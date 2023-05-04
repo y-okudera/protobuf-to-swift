@@ -6,7 +6,3 @@ pb_extractor/*
 
 output/*
 !.gitkeep
-
-/proto
-!/proto/google
-!.gitkeep
