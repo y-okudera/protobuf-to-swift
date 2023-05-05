@@ -22,3 +22,13 @@ struct {{message}}: APIRequestable {
     let {{name}}: {{type}}
     {{/properties}}
 }
+
+{{#enum_list}}
+extension {{message}} {
+    public enum {{enum_name}}: Int, Encodable {
+        {{#enum_values}}
+        case {{value}}
+        {{/enum_values}}
+    }
+}
+{{/enum_list}}

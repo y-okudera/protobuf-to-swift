@@ -2,6 +2,7 @@ from swift_generator import SwiftGenerator as sg
 import pprint
 import re
 
+
 class MessageTypeExtractor:
     def extract_message_types(message_types, service_contexts):
         """
@@ -17,60 +18,88 @@ class MessageTypeExtractor:
             print("---message_type---")
             pprint.pprint(message_type)
 
+            enum_list = []
+            for e in message_type.enum_type:
+                values = list(
+                    map(
+                        lambda v: {
+                            "value": re.sub(
+                                "_(.)",
+                                lambda x: x.group(1).upper(),
+                                v.name.lower(),
+                            )
+                        },
+                        e.value,
+                    )
+                )
+                enum_list.append({"enum_name": e.name, "enum_values": values})
+
+            print("---enum_list---")
+            pprint.pprint(enum_list)
+
             properties = []
             for f in message_type.field:
-                if (f.label == 1):
+                if f.label == 1:
                     label = "?"
-                if (f.label == 2):
+                if f.label == 2:
                     label = ""
-                if (f.label == 3):
+                if f.label == 3:
                     print("  LABEL_REPEATED")
                     # TODO:
 
-                if (f.type == 1):
+                if f.type == 1:
                     type = "Double"
-                if (f.type == 2):
+                if f.type == 2:
                     type = "Float"
-                if (f.type == 3):
+                if f.type == 3:
                     type = "Int64"
-                if (f.type == 4):
+                if f.type == 4:
                     type = "UInt64"
-                if (f.type == 5):
+                if f.type == 5:
                     type = "Int32"
-                if (f.type == 6):
+                if f.type == 6:
                     type = "UInt64"
-                if (f.type == 7):
+                if f.type == 7:
                     type = "UInt32"
-                if (f.type == 8):
+                if f.type == 8:
                     type = "Bool"
-                if (f.type == 9):
+                if f.type == 9:
                     type = "String"
-                if (f.type == 10):
+                if f.type == 10:
                     print("  TYPE_GROUP")
                     # TODO:
-                if (f.type == 11):
+                if f.type == 11:
                     print("  TYPE_MESSAGE")
                     # TODO:
-                if (f.type == 12):
+                if f.type == 12:
                     type = "Data"
-                if (f.type == 13):
+                if f.type == 13:
                     type = "UInt32"
-                if (f.type == 14):
-                    print("  TYPE_ENUM")
-                    # TODO:
-                if (f.type == 15):
+                if f.type == 14:
+                    # e.g. ".proto.FooRequest.Bar" -> "FooRequest.Bar"
+                    type = f.type_name.replace(".proto.", "")
+                if f.type == 15:
                     type = "Int32"
-                if (f.type == 16):
+                if f.type == 16:
                     type = "Int64"
-                if (f.type == 17):
+                if f.type == 17:
                     type = "Int32"
-                if (f.type == 18):
+                if f.type == 18:
                     type = "Int64"
 
-                camel_case_name = re.sub("_(.)",lambda x:x.group(1).upper(),f.name)
-                properties.append({"name": camel_case_name, "type": type + label})
+                camel_case_name = re.sub(
+                    "_(.)", lambda x: x.group(1).upper(), f.name
+                )
+                properties.append(
+                    {"name": camel_case_name, "type": type + label}
+                )
 
-            service_context = list(filter(lambda item : item['input_type'] == message_type.name, service_contexts))[0]
+            service_context = list(
+                filter(
+                    lambda item: item["input_type"] == message_type.name,
+                    service_contexts,
+                )
+            )[0]
 
             template_path = "templates/mustache/request.swift.mustache"
             output_path = "output/request/%s.swift" % message_type.name
@@ -79,10 +108,13 @@ class MessageTypeExtractor:
                 "output_type": service_context["output_type"],
                 "http_method": service_context["http_method"],
                 "path": service_context["path"],
-                "properties": properties
+                "properties": properties,
+                "enum_list": enum_list,
             }
 
-            sg.generate_swift_from_template(template_path, output_path, context)
+            sg.generate_swift_from_template(
+                template_path, output_path, context
+            )
 
             print("---message_context---")
             pprint.pprint(context)
