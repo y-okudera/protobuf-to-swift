@@ -24,8 +24,14 @@ gen: ## Swiftファイルを生成します
 	# proto_reader.py生成
 	pipenv run python proto_reader_generator/proto_reader_generator.py
 
-	# ./output/api ./output/requestディレクトリ生成
-	mkdir -p ./output/api ./output/request
+	# ./output/RemoteDataSource/Sources/RemoteDataSource/Repository ./output/RemoteDataSource/Sources/RemoteDataSource/Requestディレクトリ生成
+	mkdir -p ./output/RemoteDataSource/Sources/RemoteDataSource/Repository ./output/RemoteDataSource/Sources/RemoteDataSource/Request
+
+	# Swift Package生成
+	cd ./output/RemoteDataSource; swift package init --name RemoteDataSource --type library
+	cp -a ./templates/swift/Foundation ./output/RemoteDataSource/Sources/RemoteDataSource/Foundation
+	cp -f ./templates/swift/Package.swift ./output/RemoteDataSource/Package.swift
+
 	# Swiftファイル生成
 	pipenv run python pb_extractor/pb_extractor.py
 
@@ -38,5 +44,5 @@ clear: ## make genで生成されるファイル、ディレクトリを削除�
 	# proto_reader.py削除
 	rm -rf ./pb_extractor/proto_reader.py
 
-	# ./output/api ./output/requestディレクトリ削除
-	rm -rf ./output/api ./output/request
+	# ./output/RemoteDataSourceディレクトリ削除
+	rm -rf ./output/RemoteDataSource

@@ -6,21 +6,31 @@
 
 import APIKit
 
-struct {{message}}: APIRequestable {
+public struct {{message}}: APIRequestable {
 
-    typealias Response = {{output_type}}
+    public typealias Response = {{output_type}}
 
-    var method: HTTPMethod {
+    public var method: HTTPMethod {
         .{{http_method}}
     }
 
-    var path: String {
+    public var path: String {
         "{{path}}"
     }
 
     {{#properties}}
     let {{name}}: {{type}}
     {{/properties}}
+
+    public init(
+        {{#properties}}
+        {{name}}: {{type}}{{#comma}},{{/comma}}
+        {{/properties}}
+    ) {
+        {{#properties}}
+        self.{{name}} = {{name}}
+        {{/properties}}
+    }
 }
 
 {{#enum_list}}

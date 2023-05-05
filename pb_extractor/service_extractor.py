@@ -31,8 +31,13 @@ class ServiceExtractor:
                         http_method = split_stg[0]
                         path = split_stg[1].replace('"', "")
 
-                template_path = "templates/mustache/api.swift.mustache"
-                output_path = "output/api/%sAPI.swift" % rpc.name
+                template_path = (
+                    "templates/mustache/api_repository.swift.mustache"
+                )
+                output_path = (
+                    "output/RemoteDataSource/Sources/RemoteDataSource/Repository/%sAPIRepository.swift"
+                    % rpc.name
+                )
                 context = {
                     "rpc_name": rpc.name,
                     "http_method": http_method,

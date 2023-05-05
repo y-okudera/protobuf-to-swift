@@ -90,9 +90,22 @@ class MessageTypeExtractor:
                 camel_case_name = re.sub(
                     "_(.)", lambda x: x.group(1).upper(), f.name
                 )
-                properties.append(
-                    {"name": camel_case_name, "type": type + label}
-                )
+
+                if f == message_type.field[-1]:
+                    properties.append(
+                        {
+                            "name": camel_case_name,
+                            "type": type + label,
+                        }
+                    )
+                else:
+                    properties.append(
+                        {
+                            "name": camel_case_name,
+                            "type": type + label,
+                            "comma": True,
+                        }
+                    )
 
             service_context = list(
                 filter(
@@ -102,7 +115,10 @@ class MessageTypeExtractor:
             )[0]
 
             template_path = "templates/mustache/request.swift.mustache"
-            output_path = "output/request/%s.swift" % message_type.name
+            output_path = (
+                "output/RemoteDataSource/Sources/RemoteDataSource/Request/%s.swift"
+                % message_type.name
+            )
             context = {
                 "message": message_type.name,
                 "output_type": service_context["output_type"],
