@@ -65,6 +65,12 @@ rpc Login (LoginRequest) returns (Empty) {
 }
 ```
 
+## Advanced Usage
+
+- You can customize the output Swift files by editing mustache in templates/mustache.
+
+- By editing the templates/swift/Foundation directory, you can edit Swift files to be included in the Swift Package.
+
 ## License
 
 This library is published under the MIT License. For details, see the [LICENSE](LICENSE) file.
