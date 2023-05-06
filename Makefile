@@ -7,6 +7,7 @@ bootstrap: ## 必要なツールのインストールを実行します
 	brew install protobuf go swift-protobuf pipenv
 	go install github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc@latest
 	npm install -g yarn
+	pipenv shell
 
 .PHONY: project
 project: ## プロジェクトの設定をします
