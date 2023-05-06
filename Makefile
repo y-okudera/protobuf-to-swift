@@ -19,7 +19,7 @@ gen: ## Swiftファイルを生成します
 	make clear
 
 	# *_pb2.py生成
-	cd proto; protoc --proto_path=. --python_out=../pb_extractor *.proto model/* service/* view/* google/api/*
+	cd proto; protoc --proto_path=. --python_out=../protobuf_to_swift *.proto model/* service/* view/* google/api/*
 
 	# proto_reader.py生成
 	pipenv run python proto_reader_generator/proto_reader_generator.py
@@ -33,16 +33,16 @@ gen: ## Swiftファイルを生成します
 	cp -f ./templates/swift/Package.swift ./output/RemoteDataSource/Package.swift
 
 	# Swiftファイル生成
-	pipenv run python pb_extractor/pb_extractor.py
+	pipenv run python protobuf_to_swift/protobuf_to_swift.py
 
 .PHONY: clear
 clear: ## make genで生成されるファイル、ディレクトリを削除します
 	# *_pb2.py削除
-	find ./pb_extractor -type f -name "*_pb2.py" | xargs rm -rf
-	find ./pb_extractor -type d -empty -delete
+	find ./protobuf_to_swift -type f -name "*_pb2.py" | xargs rm -rf
+	find ./protobuf_to_swift -type d -empty -delete
 
 	# proto_reader.py削除
-	rm -rf ./pb_extractor/proto_reader.py
+	rm -rf ./protobuf_to_swift/proto_reader.py
 
 	# ./output/RemoteDataSourceディレクトリ削除
 	rm -rf ./output/RemoteDataSource
