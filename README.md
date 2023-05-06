@@ -73,7 +73,7 @@ rpc Login (LoginRequest) returns (Empty) {
 
 ## License
 
-This library is published under the MIT License. For details, see the [LICENSE](LICENSE) file.
+This library is published under the MIT License. For details, see the [LICENSE](LICENSE.md) file.
 
 ## Contributing
 
