@@ -7,19 +7,25 @@
 import APIKit
 import Foundation
 
-/// hostに対しての同時接続数を制限したSession
-final class SerialSession: Session {
+// MARK: - Helper
+extension Session {
 
-    static let sharedSession = SerialSession()
-
-    convenience init() {
-        let config = URLSessionConfiguration.default
-        config.httpMaximumConnectionsPerHost = 1
+    convenience init(config: URLSessionConfiguration) {
         let adapter = URLSessionAdapter(configuration: config)
         self.init(adapter: adapter)
     }
 
-    func response<T: Request>(for request: T) async throws -> T.Response {
+    /// hostに対しての同時接続数を制限したSession
+    static let sharedSerialSession: Session = {
+        let config = URLSessionConfiguration.default
+        config.httpMaximumConnectionsPerHost = 1
+        return .init(config: config)
+    }()
+}
+
+// MARK: - Swift Concurrency
+extension Session {
+    func send<T: Request>(_ request: T) async throws -> T.Response {
         let sessionTask: Wrapper<APIKit.SessionTask?> = Wrapper(nil)
         return try await withTaskCancellationHandler {
             try await withCheckedThrowingContinuation { continuation in

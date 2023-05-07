@@ -9,7 +9,7 @@ import APIKit
 public enum {{rpc_name}}APIRepositoryProvider {
 
     public static func provide() -> {{rpc_name}}APIRepository {
-        {{rpc_name}}API(session: SerialSession.sharedSession)
+        {{rpc_name}}API(session: Session.sharedSerialSession)
     }
 }
 
@@ -18,7 +18,7 @@ public protocol {{rpc_name}}APIRepository {
     func send(request: {{input_type}}) async throws -> {{output_type}}
 }
 
-private final class {{rpc_name}}API: {{rpc_name}}APIRepository {
+private struct {{rpc_name}}API: {{rpc_name}}APIRepository {
 
     private let session: Session
 
@@ -27,6 +27,6 @@ private final class {{rpc_name}}API: {{rpc_name}}APIRepository {
     }
 
     func send(request: {{input_type}}) async throws -> {{output_type}} {
-        try await session.response(for: request)
+        try await session.send(request)
     }
 }
