@@ -14,36 +14,14 @@ project: ## プロジェクトの設定をします
 	yarn install
 	pipenv install
 
-.PHONY: gen
-gen: ## Swiftファイルを生成します
-	# 前回生成したファイル、ディレクトリを削除
-	make clear
+OUTPUT_PATH := $(shell pipenv run python configs/config.py OUTPUT_PATH)
+SWIFT_PACKAGE_NAME := $(shell pipenv run python configs/config.py SWIFT_PACKAGE_NAME)
+SWIFT_PACKAGE_PATH := ${OUTPUT_PATH}/${SWIFT_PACKAGE_NAME}
 
-	# *_pb2.py生成
-	cd proto; protoc --proto_path=. --python_out=../protobuf_to_swift *.proto model/* service/* view/* google/api/*
-
-	# proto_reader.py生成
-	pipenv run python proto_reader_generator/proto_reader_generator.py
-
-	# ./output/RemoteDataSource/Sources/RemoteDataSource/Repository ./output/RemoteDataSource/Sources/RemoteDataSource/Requestディレクトリ生成
-	mkdir -p ./output/RemoteDataSource/Sources/RemoteDataSource/Repository ./output/RemoteDataSource/Sources/RemoteDataSource/Request
-
-	# Swift Package生成
-	cd ./output/RemoteDataSource; swift package init --name RemoteDataSource --type library
-	cp -a ./templates/swift/Foundation ./output/RemoteDataSource/Sources/RemoteDataSource/Foundation
-	cp -f ./templates/swift/Package.swift ./output/RemoteDataSource/Package.swift
-
-	# Swiftファイル生成
-	pipenv run python protobuf_to_swift/protobuf_to_swift.py
+.PHONY: gen-swift-package
+gen-swift-package: ## SwiftPackageを生成します
+	sh shellscript/generate_swift_package.sh ${SWIFT_PACKAGE_PATH}
 
 .PHONY: clear
-clear: ## make genで生成されるファイル、ディレクトリを削除します
-	# *_pb2.py削除
-	find ./protobuf_to_swift -type f -name "*_pb2.py" | xargs rm -rf
-	find ./protobuf_to_swift -type d -empty -delete
-
-	# proto_reader.py削除
-	rm -rf ./protobuf_to_swift/proto_reader.py
-
-	# ./output/RemoteDataSourceディレクトリ削除
-	rm -rf ./output/RemoteDataSource
+clear: ## 生成されたファイル、ディレクトリを削除します
+	sh shellscript/clear_generated_files.sh

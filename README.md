@@ -27,7 +27,7 @@ make bootstrap project
 Store the proto files in the /proto directory and generate Swift files using the following command:
 
 ```bash
-make gen
+make gen-swift-package
 ```
 
 ## Proto Examples

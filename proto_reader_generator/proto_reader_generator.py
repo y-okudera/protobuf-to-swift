@@ -3,7 +3,7 @@ import pystache
 
 
 def main():
-    template_path = "templates/mustache/proto_reader.py.mustache"
+    template_path = "templates/mustache/python/proto_reader.py.mustache"
     output_path = "protobuf_to_swift/proto_reader.py"
 
     pb2_files = []

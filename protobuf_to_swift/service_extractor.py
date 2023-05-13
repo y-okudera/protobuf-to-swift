@@ -4,13 +4,21 @@ import pprint
 
 
 class ServiceExtractor:
-    def extract_services(services):
+    def extract_services(
+        services,
+        output_path_format,
+        template_path,
+    ):
         """
         サービスを抽出する
         Parameters
         ----------
         services : RepeatedCompositeFieldContainer[global___ServiceDescriptorProto]
             services
+        output_path_format : str
+            output_path_format
+        template_path : str
+            template_path
         """
 
         # サービスごとに処理
@@ -26,18 +34,12 @@ class ServiceExtractor:
                 ):
                     option_key_str = option[0]
                     if option_key_str.full_name == "google.api.http":
-                        option_value_str = "{}".format(option[1])
+                        option_value_str = f"{option[1]}"
                         split_stg = option_value_str.strip().split(": ")
                         http_method = split_stg[0]
                         path = split_stg[1].replace('"', "")
 
-                template_path = (
-                    "templates/mustache/api_repository.swift.mustache"
-                )
-                output_path = (
-                    "output/RemoteDataSource/Sources/RemoteDataSource/Repository/%sAPIRepository.swift"
-                    % rpc.name
-                )
+                output_path = output_path_format % rpc.name
                 context = {
                     "rpc_name": rpc.name,
                     "http_method": http_method,
@@ -49,7 +51,9 @@ class ServiceExtractor:
                 }
 
                 sg.generate_swift_from_template(
-                    template_path, output_path, context
+                    template_path=template_path,
+                    output_path=output_path,
+                    context=context,
                 )
                 contexts.append(context)
 

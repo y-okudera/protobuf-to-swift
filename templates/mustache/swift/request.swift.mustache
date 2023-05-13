@@ -32,8 +32,8 @@ public struct {{message}}: APIRequestable {
         {{/properties}}
     }
 }
-
 {{#enum_list}}
+
 extension {{message}} {
     public enum {{enum_name}}: Int, Encodable {
         {{#enum_values}}

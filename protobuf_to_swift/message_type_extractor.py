@@ -4,13 +4,24 @@ import re
 
 
 class MessageTypeExtractor:
-    def extract_message_types(message_types, service_contexts):
+    def extract_message_types(
+        message_types,
+        service_contexts,
+        output_path_format,
+        template_path,
+    ):
         """
         メッセージを抽出する
         Parameters
         ----------
         message_types : RepeatedCompositeFieldContainer[global___DescriptorProto]
             message_types
+        service_contexts : list
+            service_contexts
+        output_path_format : str
+            output_path_format
+        template_path : str
+            template_path
         """
 
         # メッセージごとに処理
@@ -32,7 +43,12 @@ class MessageTypeExtractor:
                         e.value,
                     )
                 )
-                enum_list.append({"enum_name": e.name, "enum_values": values})
+                enum_list.append(
+                    {
+                        "enum_name": e.name,
+                        "enum_values": values,
+                    }
+                )
 
             print("---enum_list---")
             pprint.pprint(enum_list)
@@ -88,7 +104,9 @@ class MessageTypeExtractor:
                     type = "Int64"
 
                 camel_case_name = re.sub(
-                    "_(.)", lambda x: x.group(1).upper(), f.name
+                    "_(.)",
+                    lambda x: x.group(1).upper(),
+                    f.name,
                 )
 
                 if f == message_type.field[-1]:
@@ -114,11 +132,7 @@ class MessageTypeExtractor:
                 )
             )[0]
 
-            template_path = "templates/mustache/request.swift.mustache"
-            output_path = (
-                "output/RemoteDataSource/Sources/RemoteDataSource/Request/%s.swift"
-                % message_type.name
-            )
+            output_path = output_path_format % message_type.name
             context = {
                 "message": message_type.name,
                 "output_type": service_context["output_type"],
@@ -129,7 +143,9 @@ class MessageTypeExtractor:
             }
 
             sg.generate_swift_from_template(
-                template_path, output_path, context
+                template_path=template_path,
+                output_path=output_path,
+                context=context,
             )
 
             print("---message_context---")

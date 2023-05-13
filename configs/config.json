@@ -1,0 +1,4 @@
+{
+    "OUTPUT_PATH": "./output",
+    "SWIFT_PACKAGE_NAME": "RemoteDataSource"
+}
